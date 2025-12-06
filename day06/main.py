@@ -1,20 +1,17 @@
 from math import prod
 
-def read_input(filename):
+def read_input_p1(filename):
     lines = [line.strip() for line in open(filename, "r")]
 
-    values = [[0 for _ in range(len(lines) -1)] for _ in range(len(lines[0].split()))]
-    operators = []
+    num_cols = len(lines[0].split())
+    num_rows = len(lines) - 1
+    values = [[0 for _ in range(num_rows)] for _ in range(num_cols)]
 
-    for j, line in enumerate(lines):
-        if j != len(lines) - 1:
-            per_line = line.split()
-            for i, item in enumerate(per_line):
-                values[i][j] = int(item)
-        else:
-            per_line = line.split()
-            for i, item in enumerate(per_line):
-                operators.append(item)
+    for j, line in enumerate(lines[:-1]):
+        for i, item in enumerate(line.split()):
+            values[i][j] = int(item)
+
+    operators = lines[-1].split()
 
     return values, operators
 
@@ -44,11 +41,11 @@ def read_input_p2(filename):
         for length in length_per_column:
             column_values = []
             for i in range(current_pointer, current_pointer + length):
-                current_value = ""
+                chars = []
                 for j in range(len(lines) -1):
                     if lines[j][i] != " ":
-                        current_value += lines[j][i]
-                column_values.append(int(current_value))
+                        chars.append(lines[j][i])
+                column_values.append(int("".join(chars)))
                 current_pointer += 1
             current_pointer += 1
             cephalopod_values.append(column_values)
@@ -59,7 +56,7 @@ def read_input_p2(filename):
 
 def day_6(filename):
 
-    values, operators = read_input(filename)
+    values, operators = read_input_p1(filename)
 
     count_p1 = 0
     for i, operator in enumerate(operators):
