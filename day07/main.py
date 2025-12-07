@@ -1,5 +1,4 @@
-import pprint
-import copy
+from collections import defaultdict
 
 def read_input(filename):
     lines = [line.strip() for line in open(filename, "r")]
@@ -13,44 +12,35 @@ def day_7(filename):
     matrix = read_input(filename)
     start = matrix[0].index('S')
 
-    beams = set()
-    beams.add((0, start))
+    beams = {start}
 
-    tachyon_manifolds = dict()
+    tachyons_per_layer = {layer: set(i for i, c in enumerate(matrix[layer]) if c == "^") for layer in range(1, len(matrix)-1)}
 
     for layer in range(1, len(matrix)-1):
         new_beams = set()
-        tachyon_manifolds[layer] = [i for i, c in enumerate(matrix[layer]) if c == "^"]
-        if len(tachyon_manifolds[layer]) == 0:
-            for beam in beams:
-                new_beams.add((layer, beam[1]))
-        else:
-            while beams:
-                current_beam = beams.pop()
-                added = False
-                for taychon_manifold in tachyon_manifolds[layer]:
-                    if current_beam[1] == taychon_manifold:
-                        new_beams.add((layer, current_beam[1]+1))
-                        new_beams.add((layer, current_beam[1]-1))
-                        added = True
-                        count_p1 += 1
-                        break
-                if not added:
-                    new_beams.add((layer, current_beam[1]))
+        tachyons = tachyons_per_layer[layer]
+        for col in beams:
+            if col in tachyons:
+                new_beams.add(col+1)
+                new_beams.add(col-1)
+                count_p1 += 1
+            else:
+                new_beams.add(col)
         beams = new_beams
 
-    path_counts = {start: 1}
+    path_counts = defaultdict(int)
+    path_counts[start] = 1
 
     for layer in range(1, len(matrix)-1):
-        new_counts = {}
-        tachyons = set(i for i, c in enumerate(matrix[layer]) if c == "^")
+        new_counts = defaultdict(int)
+        tachyons = tachyons_per_layer[layer]
 
         for col, count in path_counts.items():
             if col in tachyons:
-                new_counts[col-1] = new_counts.get(col-1, 0) + count
-                new_counts[col+1] = new_counts.get(col+1, 0) + count
+                new_counts[col-1] += count
+                new_counts[col+1] += count
             else:
-                new_counts[col] = new_counts.get(col, 0) + count
+                new_counts[col] += count
 
         path_counts = new_counts
 
